@@ -1,10 +1,14 @@
 use std::option;
+use crate::db;
+use crate::error_handler::CustomError;
 use chrono::prelude::*;
 use crate::schema::*;
+use diesel::prelude::*;
 use diesel::sql_types::{BigInt, Text};
 use diesel::sql_types::Nullable;
+use serde::{Deserialize, Serialize};
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     #[table_name="table_area"]
     pub struct Area {
         pub area_id : i64,
@@ -17,7 +21,7 @@ use diesel::sql_types::Nullable;
         pub last_update_date : Option<NaiveDate>,
     }
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     #[table_name="table_country"]
     pub struct Country {
         pub country_id : i64,
@@ -29,7 +33,7 @@ use diesel::sql_types::Nullable;
         pub last_update_date : Option<NaiveDate>,
     }
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     #[table_name="table_role"]
     pub struct Role {
         pub role_id : i64,
@@ -42,7 +46,7 @@ use diesel::sql_types::Nullable;
         pub last_update_date : Option<NaiveDate>,
     }
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     #[table_name="table_state"]
     pub struct State {
         pub state_id : i64,
@@ -55,7 +59,7 @@ use diesel::sql_types::Nullable;
         pub last_update_date : Option<NaiveDate>,
     }
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     #[table_name="table_university"]
     pub struct University {
         pub university_id : i64,
@@ -69,7 +73,7 @@ use diesel::sql_types::Nullable;
         pub last_update_date : Option<NaiveDate>,
     }
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     #[table_name="table_user"]
     pub struct User{
         pub user_id: i64,
@@ -87,7 +91,7 @@ use diesel::sql_types::Nullable;
     }
 
 
-    #[derive(Debug,Queryable,QueryableByName)]
+    #[derive(Serialize, Deserialize,Debug,Queryable,QueryableByName)]
     pub struct UniversityDisplay {
         #[sql_type="BigInt"]
         pub university_id : i64,
@@ -109,4 +113,26 @@ use diesel::sql_types::Nullable;
         pub email_prefix : String,
         #[sql_type="Text"]
         pub active : String,
+    }
+
+    impl User{
+        //pub fn find_all_active_uni()-> Result<Result<Vec<Self>, CustomError>,CustomError>{
+        pub fn find_all_users()-> Result<Vec<Self>, CustomError>{
+            let conn= db::connection()?;
+
+            let user_list = table_user::table.load::<User>(&conn)?;
+            //let universityDisplayData = diesel::sql_query("Select * from f_get_university()").load::<UniversityDisplay>(&conn);
+            Ok(user_list)  
+        }
+    }
+
+    impl UniversityDisplay{
+        //pub fn find_all_active_uni()-> Result<Result<Vec<Self>, CustomError>,CustomError>{
+        pub fn find_all_active_uni()-> Result<Vec<Self>, CustomError>{
+            let conn = db::connection()?;
+
+            //let university = table_university::table.load::<University>(&conn)?;
+            let university_display_data = diesel::sql_query("Select * from f_get_university()").load::<UniversityDisplay>(&conn)?;
+            Ok(university_display_data)  
+        }
     }
